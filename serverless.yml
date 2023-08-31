@@ -1,0 +1,96 @@
+service: nestjs-serverless
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+plugins:
+  # - serverless-webpack
+  # - serverless-domain-manager
+  - serverless-offline
+  # - serverless-dynamodb-local
+  - serverless-plugin-optimize
+  - serverless-offline-aws-eventbridge
+
+
+
+# custom:
+#   customDomain:
+#     domainName: nestjs-serverless.example.com
+
+package:
+  patterns:
+    - "!README.md"
+    - "!.git/**"
+    - "src/**"
+    - "!test/**"
+    - "!e2e/**"
+    - "!nodemon.json"
+
+functions:
+  lambda-apigateway-main:
+    handler: dist/lambda-apigateway-main.handler
+    runtime: nodejs18.x
+    provisionedConcurrency: 1
+    environment:
+      AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+      NODE_OPTIONS: --enable-source-maps --stack-trace-limit=1000 --require @opentelemetry/auto-instrumentations-node/register
+      OTEL_TRACES_EXPORTER: otlp
+      # OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OLTP_ENDPOINT: http://localhost:4318
+      # OTEL_EXPORTER_TRACES_ENDPOINT: http://localhost:14318
+      # OTEL_EXPORTER_METRICS_ENDPOINT: http://localhost:14317
+      OTEL_NODE_RESOURCE_DETECTORS: all
+      OTEL_LOG_LEVEL: all
+      OTEL_SERVICE_NAME: nestjs-serverless
+
+    events:
+      - http:
+          cors: true
+          path: "/"
+          method: any
+      - http:
+          cors: true
+          path: hello/{name}
+          method: any
+          request:
+            parameters:
+              paths:
+                msg: true
+      - http:
+          path: publish
+          method: get
+
+  eventbridge-consumeEvent:
+    handler: dist/eventbridge-consumer-main.handler
+    runtime: nodejs18.x
+    provisionedConcurrency: 1
+    
+    events:
+      - eventBridge:
+          eventBus: nestjs-serverless-eventBus
+          pattern:
+            source:
+              - nestjs-serverless
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+  # webpack:
+  #   webpackConfig: 'webpack.config.js'
+  #   includeModules: false
+  #   packager: 'npm'
+  #   excludeFiles: src/**/*.test.js
+
+
+  serverless-offline-aws-eventbridge:
+    port: 4010 # port to run the eventBridge mock server on
+    mockEventBridgeServer: true # Set to false if EventBridge is already mocked by another stack
+    hostname: 127.0.0.1 # IP or hostname of existing EventBridge if mocked by another stack
+    pubSubPort: 4011 # Port to run the MQ server (or just listen if using an EventBridge Mock server from another stack)
+    debug: false # flag to show debug messages
+    account: '' # account id that gets passed to the event
+    maximumRetryAttempts: 10 # maximumRetryAttempts to retry lambda
+    retryDelayMs: 500 # retry delay
+    throwRetryExhausted: false # default true
+    payloadSizeLimit: "10mb" # Controls the maximum payload size being passed to https://www.npmjs.com/package/bytes (Note: this payload size might not be the same size as your AWS Eventbridge receive)

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  service:
+    image: nestjs-serverless-template:0.1.0
+    # depends_on:
+    #   - jaeger
+    #   - fluentbit
+    ports:
+      - 3000:3000
+    networks:
+      - test_otel
+    environment:
+      - OTEL_PROPAGATORS="tracecontext,baggage"
+      - OTEL_TRACES_EXPORTER="otlp"
+      # - OTEL_EXPORTER_OTLP_PROTOCOL="grpc"
+      - OTEL_EXPORTER_OTLP_ENDPOINT="http://otel-collector:4317"
+      # - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="http://otel-collector:4317"
+      # - OTEL_EXPORTER_OTLP_METRICS_ENDPOINT="http://otel-collector:8888"
+      - OTEL_NODE_RESOURCE_DETECTORS="env,host,os,process,aws,container"
+      - OTEL_SERVICE_NAME="nestjs-serverless-template"
+      - OTEL_LOG_LEVEL=all
+      # - NODE_OPTIONS="--enable-source-maps --require @opentelemetry/auto-instrumentations-node/register"
+      # - NODE_OPTIONS="--max-old-space-size=4096"
+
+networks:
+  test_otel:
+    external: true

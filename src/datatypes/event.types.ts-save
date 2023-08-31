@@ -1,0 +1,19 @@
+import { z } from "zod";
+import { EventBridgeDetailType } from "../modules/aws/eventbridge.types";
+
+export const testEventDetailType: EventBridgeDetailType = "SampleEvent";
+
+const eventDataSchema = z.object({
+  firstName: z.string().min(1).max(20),
+  lastName: z.string().min(1).max(20),
+  address: z.object({
+    line: z.string().min(1).max(30),
+    city: z.string().min(1).max(20),
+    state: z.string().min(1).max(2),
+    zip: z.number().min(10_000).max(99_999),
+  }),
+});
+
+const validateEventData = (inputs: unknown): unknown => {
+  return eventDataSchema.parse(inputs);
+};
