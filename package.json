@@ -47,7 +47,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.40.0",
     "@opentelemetry/host-metrics": "^0.32.2",
     "@opentelemetry/id-generator-aws-xray": "^1.1.2",
-    "@opentelemetry/instrumentation": "^0.40.0",
+    "@opentelemetry/instrumentation": "^0.41.2",
     "@opentelemetry/instrumentation-aws-lambda": "^0.35.3",
     "@opentelemetry/instrumentation-grpc": "^0.40.0",
     "@opentelemetry/instrumentation-http": "^0.40.0",
