@@ -32,7 +32,7 @@
     "docker": "docker build --tag nestjs-serverless-template:0.1.0 ."
   },
   "dependencies": {
-    "@aws-sdk/client-eventbridge": "^3.357.0",
+    "@aws-sdk/client-eventbridge": "^3.398.0",
     "@nestjs/common": "^10.0.2",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.0.2",
